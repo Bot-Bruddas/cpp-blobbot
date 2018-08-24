@@ -2,7 +2,7 @@
 #include <filesystem>
 #include <fstream>
 #include <array>
-#include "LodePNG.h"
+#include "LodePNG/LodePNG.h"
 
 //rgba, each takes 1 byte
 enum class Color : uint32_t {
