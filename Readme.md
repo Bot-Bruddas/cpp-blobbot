@@ -10,10 +10,10 @@ More info coming when I feel like it
 - [X] Load image passed as argument
 - [X] Compress image to 16 colors
 - [ ] Settings for image compression (Later)
-- [ ] HTTP POST request with pixel data (using user given fingerprint and no proxy)
-- [ ] Detect captcha
-- [ ] Spoofing fingerprint
-- [ ] Restart on captcha (new fingerprint)
+- [ ] HTTP POST request with data payload and user given params
+- [ ] Detect token request
+- [ ] Fingerprinting
+- [ ] Restart on token request
 - [ ] Proxy settings
-- [ ] Possibility to run multiple bots simultaneously
-- [ ] Main client to manage bots
+- [ ] Possibility to run multiple instances simultaneously
+- [ ] Main client to manage the instances
