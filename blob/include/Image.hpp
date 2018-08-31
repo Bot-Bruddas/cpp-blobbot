@@ -79,8 +79,9 @@ public:
 		//Path may be relative or absolute
 		std::filesystem::path path( filePath );
 		std::vector<unsigned char> data;
-		std::vector<unsigned char> tempData;
 		unsigned error{ 0 };
+
+		_name = path.filename().string();
 
 		if ( path.extension( ) == ".png" ) {
 			error = lodepng::decode( data, _width, _height, path.string( ) );
@@ -96,22 +97,35 @@ public:
 			_data.push_back( NearestColor(data[ i + 0 ], data[ i + 1 ], data[ i + 2 ], data[ i + 3 ]) );
 			i += 4;
 		}
+	}
+	~Image( ) {
+		//SaveImage();
+	}
 
-		for ( Color pixel : _data ) {
+	void SaveImage( ) {
+		std::vector<unsigned char> tempData;
+
+		for ( Color pixel:_data ) {
 			tempData.push_back( ( static_cast<unsigned char>( static_cast<unsigned int>( pixel ) >> 6 * 4 ) ) );
 			tempData.push_back( ( static_cast<unsigned char>( static_cast<unsigned int>( pixel ) >> 4 * 4 ) ) );
 			tempData.push_back( ( static_cast<unsigned char>( static_cast<unsigned int>( pixel ) >> 2 * 4 ) ) );
 			tempData.push_back( ( static_cast<unsigned char>( static_cast<unsigned int>( pixel ) >> 0 * 4 ) ) );
 		}
 
-		error = lodepng::encode( "F:/Projects/blob/blob/Debug.png", tempData, _width, _height );
+		unsigned error{ 0 };
+		
+		std::filesystem::create_directory( std::filesystem::current_path( ).string( ) + "\\.cache\\" );
+		std::cout << _name << '\n';
+		std::cout << std::filesystem::current_path( ).string( ) + "\\.cache\\" + _name << '\n';
+
+		error = lodepng::encode( std::filesystem::current_path( ).string( ) + "\\.cache\\" + _name, tempData, _width, _height );
 
 		if ( error ) {
 			std::cout << "encoder error " << error << ": " << lodepng_error_text( error ) << std::endl;
 		}
 	}
-	~Image( ) = default;
 private:
+	std::string _name;
 	std::vector<Color> _data;
 	unsigned int _width;
 	unsigned int _height;
