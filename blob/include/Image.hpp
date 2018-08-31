@@ -51,10 +51,11 @@ Color NearestColor( unsigned char r, unsigned char g, unsigned char b, unsigned 
 		Color::Lavender,
 		Color::FreshEggplant
 	};
+
 	if ( a > 128 ) {
 		for ( size_t i{ 0 }; i < 16; ++i ) {
 			distance = (
-				( ( r - ( static_cast<unsigned char>( static_cast<unsigned int>( colors[ i ] ) >> 6*4 ) ) ) *
+				( ( r - ( static_cast<unsigned char>( static_cast<unsigned int>( colors[ i ] ) >> 6 * 4 ) ) ) *
 				( r - ( static_cast<unsigned char>( static_cast<unsigned int>( colors[ i ] ) >> 6 * 4 ) ) ) ) +
 				( ( g - ( static_cast<unsigned char>( static_cast<unsigned int>( colors[ i ] ) >> 4 * 4 ) ) ) *
 				( g - ( static_cast<unsigned char>( static_cast<unsigned int>( colors[ i ] ) >> 4 * 4 ) ) ) ) +
@@ -65,7 +66,6 @@ Color NearestColor( unsigned char r, unsigned char g, unsigned char b, unsigned 
 				minDistance = distance;
 				value = colors[ i ];
 			}
-
 		}
 	}
 
@@ -79,93 +79,40 @@ public:
 		//Path may be relative or absolute
 		std::filesystem::path path( filePath );
 		std::vector<unsigned char> data;
-		unsigned int width{ 0 };
-		unsigned int height{ 0 };
+		std::vector<unsigned char> tempData;
 		unsigned error{ 0 };
 
 		if ( path.extension( ) == ".png" ) {
-			error = lodepng::decode( data, width, height, path.string( ) );
+			error = lodepng::decode( data, _width, _height, path.string( ) );
 		}
 
 		if ( error ) {
 			std::cout << "decoder error " << error << ": " << lodepng_error_text( error ) << std::endl;
 		}
 
-		////Unconventional for loop for debugging image data
-		//for ( size_t i{ 1 }; i <= data.size( ); ++i ) {
-		//	std::cout << '[' << static_cast<unsigned>( data[i-1] ) << ']';
-		//	if ( i % 4 == 0 && i != 0 ) {
-		//		std::cout << '\n';
-		//	}
-		//}
-
 		//Compress image to use only 16 selected colors
-		std::vector<std::array<unsigned char, 4>> colorData;
 		size_t i{ 0 };
 		while ( i < data.size() ) {
-			colorData.push_back( {data[ i++ ], data[ i++ ], data[ i++ ], data[ i++ ]} );
+			_data.push_back( NearestColor(data[ i + 0 ], data[ i + 1 ], data[ i + 2 ], data[ i + 3 ]) );
+			i += 4;
 		}
 
-		////Testing that nearest color works.
-		//for ( std::array<unsigned char, 4> pixel : colorData ) {
-		//	Color temp = NearestColor( pixel[ 0 ], pixel[ 1 ], pixel[ 2 ], pixel[ 3 ] );
-		//	switch ( temp ) {
-		//		case Color::None:
-		//			std::cout << "None\n";
-		//			break;
-		//		case Color::White:
-		//			std::cout << "White\n";
-		//			break;
-		//		case Color::Mercury:
-		//			std::cout << "Mercury\n";
-		//			break;
-		//		case Color::Gray:
-		//			std::cout << "Gray\n";
-		//			break;
-		//		case Color::MineShaft:
-		//			std::cout << "Mine Shaft\n";
-		//			break;
-		//		case Color::CarnationPink:
-		//			std::cout << "Carnation Pink\n";
-		//			break;
-		//		case Color::Red:
-		//			std::cout << "Red\n";
-		//			break;
-		//		case Color::Tangerine:
-		//			std::cout << "Tangerine\n";
-		//			break;
-		//		case Color::CapePalliser:
-		//			std::cout << "Cape Palliser\n";
-		//			break;
-		//		case Color::Turbo:
-		//			std::cout << "Turbo\n";
-		//			break;
-		//		case Color::Conifer:
-		//			std::cout << "Conifer\n";
-		//			break;
-		//		case Color::Green:
-		//			std::cout << "Green\n";
-		//			break;
-		//		case Color::RobinsEggBlue:
-		//			std::cout << "Robin's Egg Blue\n";
-		//			break;
-		//		case Color::Lochmara:
-		//			std::cout << "Lochmara\n";
-		//			break;
-		//		case Color::Blue:
-		//			std::cout << "Blue\n";
-		//			break;
-		//		case Color::Lavender:
-		//			std::cout << "Lavender\n";
-		//			break;
-		//		case Color::FreshEggplant:
-		//			std::cout << "Fresh Eggplant\n";
-		//			break;
-		//		default:
-		//			break;
-		//	}
-		//}
+		for ( Color pixel : _data ) {
+			tempData.push_back( ( static_cast<unsigned char>( static_cast<unsigned int>( pixel ) >> 6 * 4 ) ) );
+			tempData.push_back( ( static_cast<unsigned char>( static_cast<unsigned int>( pixel ) >> 4 * 4 ) ) );
+			tempData.push_back( ( static_cast<unsigned char>( static_cast<unsigned int>( pixel ) >> 2 * 4 ) ) );
+			tempData.push_back( ( static_cast<unsigned char>( static_cast<unsigned int>( pixel ) >> 0 * 4 ) ) );
+		}
+
+		error = lodepng::encode( "F:/Projects/blob/blob/Debug.png", tempData, _width, _height );
+
+		if ( error ) {
+			std::cout << "encoder error " << error << ": " << lodepng_error_text( error ) << std::endl;
+		}
 	}
 	~Image( ) = default;
 private:
+	std::vector<Color> _data;
+	unsigned int _width;
+	unsigned int _height;
 };
