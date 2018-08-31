@@ -13,6 +13,7 @@ More info coming when I feel like it
 - [ ] HTTP POST request with data payload and user given params
 - [ ] Detect token request
 - [ ] Fingerprinting
+- [ ] Queue multiple images
 - [ ] Restart on token request
 - [ ] Proxy settings
 - [ ] Possibility to run multiple instances simultaneously
